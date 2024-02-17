@@ -2,6 +2,7 @@ from flask import Flask,jsonify,request
 from flask_cors import CORS
 from endpoints.test import handle_test
 from endpoints.google_login import login
+from endpoints.process_audio import handle_audio
 from dotenv import load_dotenv, find_dotenv
 from flask_jwt_extended import  JWTManager, jwt_required, get_jwt_identity
 
@@ -30,6 +31,7 @@ def protected():
     current_user = get_jwt_identity()
     return jsonify(logged_in_as=current_user), 200
 
+app.add_url_rule('/process-audio', 'handle_audio', handle_audio, methods=['POST'])
 
 if __name__ == '__main__':
-    app.run(port=3001)
+    app.run(port=5000)

@@ -10,6 +10,5 @@ app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 app.add_url_rule('/test', 'handle_test', handle_test, methods=['POST'])
 
-
 if __name__ == '__main__':
     app.run(port=3001)

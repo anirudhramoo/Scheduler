@@ -40,18 +40,26 @@ def get_current_date():
     return current_date
 
 def add_tuple_conversion_user(user_input):
-    prompt = f'''The user input specifies different events they want to do in the week. Please convert the user input for each and every single event into a list of 
-    tuples where each tuple represents one of these events. The format of the event's tuple is of (duration, release, deadline, days, information) where 
+    prompt = f'''ONLY do the following if the user specifies an input to schedule something. If for example the user doesn't mention this, respond as a normal assistant.
+    If for example user input specifies different events they want to do in the week please convert the user input for each and every single event into a list of 
+    tuples where each tuple represents one of these events. If for example they specify they want to do an event multiple times, please create multiple events. PLEASE only return only the tuple. Do NOT return anything else besides the tuple or else the user will be upset if they specify events. 
+    The format of the event's tuple is of (duration, release, deadline, days, information) where 
     "duration" is the time to complete the event in the format of (String hours::minutes in 24 hour format), 
     "release" is the earliest the event can be done in the format of (String hours::minutes in 24 hour format), 
     "deadline" is the latest the event can be done in the format of (String hours::minutes in 24 hour format), 
-    "
-ays" is the possible days this event can be added. This is in the format of (String '1234567' where each number represents monday - sunday)    "information" is the name of the event (String).
+    "days" is the possible days this event can be added. This is in the format of (String '01234567' where each number represents the days from now and you can have multiple options up to 7 days in advance),    
+    "information" is the name of the event (String).
     Please return this to the user as a list of tuples with each element being one event in the format of: [(duration, release, deadline, days, information), (duration, release, deadline, days, information), ...] 
+    PLEASE only return only the tuple. Do NOT return anything else besides the tuple or else the user will be upset.
+    ONLY do the following if the user specifies an input to schedule something. 
+    If for example the user doesn't mention this, respond as a normal assistant and ignore returning tuples.
     Here is the prompt to convert: "{user_input}". 
-    Make sure to only respond with the list of tup Please use the current date "{get_current_date()}" in your calculations.
+    Make sure to only respond with the list of tuple if an event is specified. Please use the current date "{get_current_date()}" in your calculations. 
+    ONLY do the tuple information if the user specifies an input to schedule something. 
+    If for example the user doesn't mention this, respond as a normal assistant and ignore returning tuples.
     As you convert the events into these tuples, use the information and make your own decisions. For example, if release and deadlines aren't specified, 
-    generate your own at reasonable hours for the task specified. Make the user happy. PLEASE only return only the tuple. Do NOT return anything else besides the tuple or else the user will be upset.'''
+    generate your own at reasonable hours for the task specified. Make the user happy. PLEASE only return only the tuple. Do NOT return anything else besides the tuple or else the user will be upset if they mention events.
+    Again, only do the event tuples if the user wants to schedule something, if they do not, respond as a normal assistant and ignore returning tuples.'''
 
 
     return prompt
@@ -115,7 +123,7 @@ prompt = ChatPromptTemplate.from_messages(
         MessagesPlaceholder(variable_name="messages"),
     ]
 )
-chat = ChatOpenAI(model="gpt-3.5-turbo-1106")
+chat = ChatOpenAI(model="gpt-4")
 
 chain = prompt | chat
 def handle_execute():
@@ -135,7 +143,7 @@ def handle_execute():
     
     data = response.json()
     prior_messages.append(
-        HumanMessage(content=data["text"])
+        HumanMessage(content=add_tuple_conversion_user(data["text"]))
     )
     res=chain.invoke(
         {
@@ -150,6 +158,9 @@ def handle_execute():
     
     # event_tuples_string=text_to_tuple_agent_executor.invoke({"input": add_tuple_conversion_user(data["text"]), "chat_history": prior_context})
     #    # append ai message to the end of this
+
+
+
     
     if response.status_code == 200:
         success = True

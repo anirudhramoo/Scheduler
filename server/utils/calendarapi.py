@@ -16,6 +16,8 @@ class gcal_tool():
         self.access_token = response["access_token"]
         print(self.access_token)
 
+        self.primary = [i for i in self.calendars() if 'mich' in i][0]
+
     def grequest(self, url, params = {}, data={}, type=requests.get):
         headers = {'Authorization': f'Bearer {self.access_token}'}
         return type(url, params=params, data=data, headers=headers).json()
@@ -27,7 +29,7 @@ class gcal_tool():
     def get_events(self, calid, mindate, maxdate):
         p = {"timeMin": mindate,
              "timeMax": maxdate}
-        # print(p)
+        print(p)
         
         cal = self.grequest(
             f"https://www.googleapis.com/calendar/v3/calendars/{calid}/events", 
@@ -36,13 +38,18 @@ class gcal_tool():
 
         return cal["items"]
 
-    def __init__(self, access_token):
+    def __init__(self, access_token, cals = "mich"):
         self.access_token = access_token
         self.tz = 'America/New_York'
 
+        self.cals = cals
+
     def getnextweek(self, calid, days=7):
-        lower = datetime.now(dt.timezone.utc)
+        lower = datetime.now(dt.timezone.utc).replace(hour=0, minute=0, second=0,microsecond=0)
+
         upper = lower + timedelta(days=days)
+
+        print(lower, upper)
 
 
         events = self.get_events(calid, 
@@ -52,22 +59,22 @@ class gcal_tool():
         return events
     
     def totuple(self, event):
-        return (event["start"], event["end"], 
+        return (event["start"]["dateTime"], event["end"]["dateTime"],
                 event.get("description") if event.get("description") else "",
-                event["summary"])
+                event["summary"], event["id"])
     
-    def addevent(self, calid, start, end, desc, name):
+    def addevent(self, calid, start, end, desc, name, ii):
         p = {"end": {
                 "dateTime": end,
-                "timeZone": self.tz                 
+                # "timeZone": self.tz                 
              },
              "start": {
                 "dateTime": start,
-                "timeZone": self.tz
+                # "timeZone": self.tz
              },
              "description": desc,
              "summary": name}
-        # print(p)
+        print(p)
         
         cal = self.grequest(
             f"https://www.googleapis.com/calendar/v3/calendars/{calid}/events", 
@@ -76,6 +83,25 @@ class gcal_tool():
         )
 
         return cal
+    
+    def pushchange(self, args):
+        return self.addevent(self.primary, *args)
+       
+    def patch_event(self, calid, start, end, desc, name, ii):
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+
+        curr_url = f'https://www.googleapis.com/calendar/v3/calendars/{calid}/events/{ii}'
+
+        curr = self.grequest(curr_url)
+        curr["end"] = {"dateTime": end}
+        curr["start"] = {"dateTime": start}
+        curr["description"] = desc
+        curr["summary"] = name
+
+        return(requests.put(curr_url, headers=headers, data=json.dumps(curr)))
+    
+    def patchchange(self, args):
+        return self.patch_event(self.primary, *args)
     
     def deleteevent(self, calid, eventid):
         headers = {'Authorization': f'Bearer {self.access_token}'}
@@ -86,9 +112,15 @@ class gcal_tool():
 
         return cal
 
+    def getevs(self, days = 7):
+        lower = datetime.now(dt.timezone.utc).replace(hour=0, minute=0, second=0,microsecond=0)
+
+        upper = lower + timedelta(days=days)
+        
+        return [self.totuple(i) for i in self.getnextweek(self.primary)]
 
     def runn(self):
-        primary = [i for i in self.calendars() if 'mich' in i][0]
+        primary = [i for i in self.calendars() if self.cals in i][0]
         # print(primary)
         print([self.totuple(i) for i in self.getnextweek(primary)])
         # print(self.addevent(primary, "2024-02-19T11:00:00", "2024-02-19T11:30:00", "testing this will be deleted", "Heather wants to connect on Linkedin"))
@@ -104,11 +136,12 @@ class gcal_tool():
 
 
 if __name__ == "__main__":
-    access_token = "ya29.a0AfB_byAqBgLdo8cwydIUYij81w2IUuQQ23h_xE02n1INkeK65VDBDErpAmoaQpwZl_vaSQOwMQpxaMlBy60d5-igplqc804QR-5R0wCzZey7yMHNSAV_4uT5VrUIa6ObpzV0Iya-TLabZqqkDjPebdGTgQi-Bha3vZ3oaCgYKAWQSARMSFQHGX2Mi7r9ae0NA8o7rYX5Qo8W0zg0171"
+    access_token = "ya29.a0AfB_byAa-5XiF96eU8E9HweTJ2Ovqf4vKStLESJtbyrwjPtfmA-dKRqSUgrf0v_-XhkU0Sl3rAEOLcqq1n0S0QWDYtAqfWL89LvF0tnNgckREo3Qe3YAWpcVhqfX_wpBY2WRfvFEhbqwe8GM38gulaBMrN7TcB2yABfMjQaCgYKAU8SARMSFQHGX2MiQu6qaG6E-KhejZZ45dWgHA0173"
     test = gcal_tool(access_token)
-    # test.refresh("1//06WJTC4rzOVYyCgYIARAAGAYSNwF-L9Irt4Ebx3BK7nXgr27n6Wt1s4hzqxly72p7Y_xdSIsc1-v_L9Cksu2azZyNTJ033OCzH_E")
+    test.refresh("1//06WJTC4rzOVYyCgYIARAAGAYSNwF-L9Irt4Ebx3BK7nXgr27n6Wt1s4hzqxly72p7Y_xdSIsc1-v_L9Cksu2azZyNTJ033OCzH_E")
 
-    test.runn()
+    print(test.getevs())
+    print(test.patchchange(("2024-02-19T15:34:50-08:00", "2024-02-19T16:34:50-08:00", "new desc", "updatednev", '4epkp0o9mlf6ij5b6kvlsn5lo4')))
 
 
     # print(test.calendars())

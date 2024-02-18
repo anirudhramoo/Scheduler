@@ -9,4 +9,5 @@ flask-jwt-extended
 langchain-openai
 langchain
 langchain-core
+gunicorn
 

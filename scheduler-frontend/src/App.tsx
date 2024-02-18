@@ -49,6 +49,17 @@ function App() {
       ) : (
         <Scheduler profile={profile} />
       )}
+
+      {!profile && (
+        <div className="flex items-center h-12 w-full bg-white bg-opacity-20 absolute bottom-0 border-t border-gray-300  shadow-md">
+          <a
+            className="text-white font-medium  ml-6 mr-4 cursor-pointer hover:text-slate-200"
+            href="https://airtable.com/app7vdcIUagvg3HsW/shrLtZyCrPSFqjjxS"
+          >
+            Want to be informed when this goes public?
+          </a>
+        </div>
+      )}
     </div>
   );
 }

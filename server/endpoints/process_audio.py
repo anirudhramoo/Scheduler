@@ -150,8 +150,9 @@ tuple_prompt = ChatPromptTemplate.from_messages(
             both also in a 24-hour format aligned with the current timezone. "Days" denotes the possible days for scheduling the event, formatted 
             as '1234567', where each numeral represents Monday through Sunday, respectively. Finally, "information" provides the event's name. 
             The output must exclusively be a list of such tuples, each encapsulating a single event in the format: \[(duration, release, deadline, days, information), ...\]. 
-            This format must be adhered to with precision, ensuring the response contains only a list of tuples and no other text.
-            An empty list and nothing else should be returned if no events are provided. It is imperative to use the information provided, along with sensible 
+            This format must be adhered to with precision, ensuring the response contains only a list of tuples and no other text. Moreover, ensure that the duration element only has 
+            the hours and minutes given and nothing else. An empty list and nothing else should be returned if no events are provided. 
+            It is imperative to use the information provided, along with sensible 
             assumptions for any unspecified details like release times and deadlines, to create a feasible and practical schedule. However, should any event prove impossible to schedule—such as an 
             event exceeding the available time frame—an empty tuple should be returned. It is also important to note that different multiple tuples 
             must be added to the array for a single event if the frequncy of that event is more than 1 (ie, I want to run 4 times a week),

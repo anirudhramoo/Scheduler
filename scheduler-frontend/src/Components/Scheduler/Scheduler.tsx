@@ -26,7 +26,9 @@ export const Scheduler: FC<SchedulerProps> = ({ profile }) => {
       const formData = new FormData();
       // console.log(audioBlob);
       formData.append("profile", JSON.stringify(profile));
-      formData.append("prior_messages", JSON.stringify(messagesArr));
+      let lastTwoMessages =
+        messagesArr.length > 2 ? messagesArr.slice(-2) : messagesArr;
+      formData.append("prior_messages", JSON.stringify(lastTwoMessages));
       formData.append("audio", audioBlob);
       console.log(messagesArr);
       const response = await fetch(

@@ -59,6 +59,9 @@ class gcal_tool():
         return events
     
     def totuple(self, event):
+        if event.get("recurrence"):
+            print(event.get("recurrence"))
+
         return (event["start"]["dateTime"], event["end"]["dateTime"],
                 event.get("description") if event.get("description") else "",
                 event["summary"], event["id"])
@@ -112,7 +115,7 @@ class gcal_tool():
 
         return cal
 
-    def getevs(self, days = 7):
+    def getevs(self, days = 8):
         lower = datetime.now(dt.timezone.utc).replace(hour=0, minute=0, second=0,microsecond=0)
 
         upper = lower + timedelta(days=days)

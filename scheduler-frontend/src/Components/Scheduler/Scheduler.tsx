@@ -16,7 +16,7 @@ export const Scheduler: FC<SchedulerProps> = ({ profile }) => {
   const [data, setData] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
 
-  const { fetchAndPlayAudio, isPlaying } = usePlayResponse();
+  const { fetchAndPlayAudio, isPlaying, stopAudio } = usePlayResponse();
   const sendAudioToAPI = async (
     audioBlob: Blob,
     messagesArr: any[]
@@ -71,9 +71,7 @@ export const Scheduler: FC<SchedulerProps> = ({ profile }) => {
           </div>
           <SchedulerButtonLarge
             onClick={() => {
-              if (isPlaying) {
-                return;
-              }
+              stopAudio();
               setState("recording");
               startRecording();
             }}

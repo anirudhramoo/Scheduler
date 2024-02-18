@@ -1,7 +1,6 @@
 import re
 import datetime as dt
 
-import pytz
 
 from math import ceil
 
@@ -9,12 +8,9 @@ from utils.schedule import timedperiod as tp
 from utils.calendarapi import gcal_tool as gct
 
 # Define the Eastern Time Zone
-eastern = pytz.timezone('US/Eastern')
 # Convert to Eastern Time
 
-def in_est(uttime):
-    return uttime.astimezone(eastern)
-
+est_offset = dt.timedelta(hours=0)
 
 class scheduler():
     def ttm(self, day, hr, mn):
@@ -27,10 +23,10 @@ class scheduler():
     def parseevent(self, event):
         start, end, desc, name, ids = event
 
-        cst = dt.datetime.fromisoformat(start)
+        cst = dt.datetime.fromisoformat(start[:-1] + '-00:00')
         print("-----------", start)
         # print(cst, self.rn)
-        cet = dt.datetime.fromisoformat(end)
+        cet = dt.datetime.fromisoformat(end[:-1] + '-00:00')
 
         diff = (cst - self.rn)
 
@@ -82,6 +78,7 @@ class scheduler():
     def torelutc(self, val):
         d, h, m = self.mtt(val)
         td = dt.timedelta(days=d, hours=h, minutes=m)
+        td += est_offset
         return (self.rn + td).isoformat()
 
     def speak(self, ids):

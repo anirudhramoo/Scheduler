@@ -4,8 +4,8 @@ import datetime as dt
 
 from math import ceil
 
-from schedule import timedperiod as tp
-from calendarapi import gcal_tool as gct
+from utils.schedule import timedperiod as tp
+from utils.calendarapi import gcal_tool as gct
 
 
 
@@ -86,7 +86,7 @@ class scheduler():
         d, h2, m2 = self.mtt(ub)
 
         return (self.torelutc(st), str(h) + ':' + str(m),
-                str(h1) + ':' + str(m1), str(h2) + ':' + str(m2), name)
+                str(h1) + ':' + str(m1), str(h2) + ':' + str(m2), name, ids)
     
     def togcal(self, ids):
         st, du, lb, ub, name, ii = self.ids[ids]
@@ -111,19 +111,34 @@ class scheduler():
 
             outs.append((i, (nst, net, ndes, name, ii)))
 
-        # for i, x in outs:
-        #     if x[-1] == 0:
-        #         resp = self.calapi.pushchange(x)
-        #         a, b, c, d, e, _ = self.ids[i]
-        #         self.ids[i] = a, b, c, d, e, resp["id"]
-        #         print(self.ids[i])
-        #         print(resp)
-        #     else:
-        #         print(self.calapi.patchchange(x))
+        for i, x in outs:
+            if x[-1] == 0:
+                resp = self.calapi.pushchange(x)
+                a, b, c, d, e, _ = self.ids[i]
+                self.ids[i] = a, b, c, d, e, resp["id"]
+                print(self.ids[i])
+                print(resp)
+            else:
+                print(self.calapi.patchchange(x))
 
 
         return outs
+    
+    def giveallevents(self):
+        return [(x[1][-2], x[0]) for x in self.ids.items()]
 
+    def checkev(self, ids):
+        return self.speak(ids)
+
+    def remevent(self, ids):
+        print(self.ids[ids])
+        _, dur, _, _, _, ii = self.ids[ids]
+        self.sched.delevent(ids, dur)
+
+        self.ids.pop(ids)
+
+        if ii != 0:
+            self.calapi.deleteevent(ii)
 
     def addevent(self, event):
         dur, rs, ds, day, oname = self.parsenewevent(event)
@@ -178,11 +193,11 @@ if __name__ == "__main__":
     print("----------------")
 
     # THIS IS HOW YOU ADD AN EVENT
-    print(damn.addevent(newev[0]))
-    print(damn.ids)
-    print(damn.addevent(newev[1]))
-    print(damn.addevent(newev[2]))
-    print(damn.ids)
+    # print(damn.addevent(newev[0]))
+    # print(damn.ids)
+    # print(damn.addevent(newev[1]))
+    # print(damn.addevent(newev[2]))
+    # print(damn.ids)
 
     # print(damn.writetocal([14, 15, 16, 17]))
 

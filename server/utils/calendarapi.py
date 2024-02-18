@@ -2,6 +2,9 @@ import requests, os, json
 
 import datetime as dt
 from datetime import datetime, timedelta
+from dotenv import load_dotenv, find_dotenv
+import os
+load_dotenv(find_dotenv())
 
 class gcal_tool():
     def refresh(self, refresh_token):
@@ -14,17 +17,26 @@ class gcal_tool():
 
         response = requests.post('https://oauth2.googleapis.com/token', data=data).json()
         self.access_token = response["access_token"]
-        print(self.access_token)
+       
 
         self.primary = [i for i in self.calendars() if 'mich' in i][0]
+        cmeta = self.grequest("fhttps://www.googleapis.com/calendar/v3/calendars/{self.primary}")
+        print(cmeta["timeZone"])
+
+        self.tz = cmeta["timeZone"]
 
     def grequest(self, url, params = {}, data={}, type=requests.get):
+        print("Acccess token")
+        print(self.access_token)
         headers = {'Authorization': f'Bearer {self.access_token}'}
         return type(url, params=params, data=data, headers=headers).json()
     
     def calendars(self):
         cal_list = self.grequest("https://www.googleapis.com/calendar/v3/users/me/calendarList")
-        return [i['id'] for i in cal_list["items"]]
+        print(cal_list)
+        raws = [i['id'] for i in cal_list["items"]]
+        print(raws)
+        return raws
     
     def get_events(self, calid, mindate, maxdate):
         p = {"timeMin": mindate,
@@ -106,7 +118,8 @@ class gcal_tool():
     def patchchange(self, args):
         return self.patch_event(self.primary, *args)
     
-    def deleteevent(self, calid, eventid):
+    def deleteevent(self, eventid):
+        calid = self.primary
         headers = {'Authorization': f'Bearer {self.access_token}'}
 
         cal = requests.delete(

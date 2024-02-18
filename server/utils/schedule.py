@@ -23,7 +23,7 @@ class timedperiod():
                 ds += self.units
 
             
-            if self.day[start] == -1:
+            if all(( x == -1 for x in self.day[start:start + time] )):
                 self.present.add(ids)
                 self.events.append((time, rs, ds, ids))
                 
@@ -74,6 +74,15 @@ class timedperiod():
         self.events = []
         
         self.read(events)
+
+    
+    def delevent(self, ids, dur):
+        strt = self.whattime(ids)
+        self.block(dur, strt, -1)
+        self.present.remove(ids)
+
+        self.events = [i for i in self.events
+                       if i[-1] != ids]
 
     def addevent(self, event):
         ts, rs, ds = event

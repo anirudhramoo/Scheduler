@@ -2,7 +2,7 @@ from flask import Flask,jsonify,request
 from flask_cors import CORS
 from endpoints.test import handle_test
 from endpoints.google_login import login
-from endpoints.process_audio import handle_audio,handle_execute
+from endpoints.process_audio import handle_execute
 from dotenv import load_dotenv, find_dotenv
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -17,7 +17,7 @@ app.config['JWT_SECRET_KEY'] = os.environ["JWT_SECRET"]
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 
 
-CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
+CORS(app, supports_credentials=True, origins=["http://localhost:3000","https://www.heatherai.in"])
 
 app.add_url_rule('/test', 'handle_test', handle_test, methods=['POST'])
 app.add_url_rule('/google_login', 'login', login, methods=['POST'])

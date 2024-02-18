@@ -22,7 +22,11 @@ function App() {
   return (
     <div className="w-screen h-screen  bg-gradient-to-r from-pink-500 to-orange-500 text-white">
       <div className=" flex justify-between items-center h-24 w-full bg-white bg-opacity-20 absolute top-0 border-b border-gray-300">
-        <img src="/logo.png" alt="Descriptive Alt Text" className="w-16 ml-8" />
+        <img
+          src="/text_logo.png"
+          alt="Descriptive Alt Text"
+          className="w-44 ml-8"
+        />
 
         {profile && (
           <div className="flex mr-10">
@@ -40,7 +44,11 @@ function App() {
           </div>
         )}
       </div>
-      {!profile ? <Login setProfile={setProfile} /> : <Scheduler />}
+      {!profile ? (
+        <Login setProfile={setProfile} />
+      ) : (
+        <Scheduler profile={profile} />
+      )}
     </div>
   );
 }

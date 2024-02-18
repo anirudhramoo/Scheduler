@@ -1,6 +1,7 @@
 import { useState, useEffect, FC } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import Cookies from "js-cookie";
+import { hasGrantedAllScopesGoogle } from "@react-oauth/google";
 
 export type AuthProps = {
   setProfile: any;
@@ -21,8 +22,15 @@ export const Auth: FC<AuthProps> = ({ setProfile }) => {
 
   const googleLogin = useGoogleLogin({
     flow: "auth-code",
+    scope:
+      "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid https://www.googleapis.com/auth/calendar",
     onSuccess: async (codeResponse) => {
       let loginDetails = await getUserInfo(codeResponse);
+      const hasAccess = hasGrantedAllScopesGoogle(
+        loginDetails,
+        "https://www.googleapis.com/auth/calendar"
+      );
+      console.log(hasAccess);
       console.log(loginDetails);
       localStorage.setItem("profile", JSON.stringify(loginDetails));
       setProfile(loginDetails);

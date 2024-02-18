@@ -1,13 +1,19 @@
 import re
 import datetime as dt
 
+import pytz
 
 from math import ceil
 
 from utils.schedule import timedperiod as tp
 from utils.calendarapi import gcal_tool as gct
 
+# Define the Eastern Time Zone
+eastern = pytz.timezone('US/Eastern')
+# Convert to Eastern Time
 
+def in_est(uttime):
+    return uttime.astimezone(eastern)
 
 
 class scheduler():

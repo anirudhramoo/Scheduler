@@ -4,9 +4,16 @@ from dotenv import load_dotenv, find_dotenv
 import requests
 import os
 from flask_jwt_extended import create_access_token
+import redis
+
 
 load_dotenv(find_dotenv())
 
+
+r = redis.Redis(
+host=os.environ["REDIS_HOST"],
+port=11866,
+password=os.environ["REDIS_PASSWORD"])
 
 def login():
     auth_code = request.get_json()['code']
@@ -25,10 +32,15 @@ def login():
     }
     user_info = requests.get('https://www.googleapis.com/oauth2/v3/userinfo', headers=headers).json()
 
-    jwt_token = create_access_token(identity=user_info['email'])  
-    print(jwt_token)
-    response.set_cookie('access_token_cookie', value=jwt_token, httponly=True, secure=False, samesite='Lax')
-    response.headers['Authorization'] = jwt_token
+    # USE REDIS TO CREATE A KEY VALUE MAPPING FROM THE REFRESH TOKEN TO THE SESSION TOKEN
+    # print("STARTING REDIS")
+    # print(r.ping())
+    # # r.set(response["refresh_token"],response["access_token"])
+    # print("DONE WITH REDIS")
+
+    # response.pop('access_token', None)
+    response['user_info'] = user_info
+    
 
     return response, 200
 

@@ -1,7 +1,12 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Auth } from "./Auth";
+import { FC } from "react";
 
-export const Login = () => {
+export type LoginProps = {
+  setProfile: any;
+};
+
+export const Login: FC<LoginProps> = ({ setProfile }) => {
   return (
     <div className="flex flex-col justify-center items-center h-screen ">
       <h1 className="font-sans text-7xl font-bold mb-12">Meet Heather.ai</h1>
@@ -11,7 +16,7 @@ export const Login = () => {
       <GoogleOAuthProvider
         clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID ?? ""}
       >
-        <Auth />
+        <Auth setProfile={setProfile} />
       </GoogleOAuthProvider>
     </div>
   );

@@ -2,26 +2,45 @@ import React from "react";
 import "./index.css";
 import { Login } from "./Components/Login/Login";
 import { Scheduler } from "./Components/Scheduler/Scheduler";
+import { useState, useEffect } from "react";
 
 function App() {
-  async function getDummy() {
-    let response = await fetch("http://127.0.0.1:3001/protected", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${""}`,
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
-    console.log(response);
-  }
+  const [profile, setProfile] = useState<any>(undefined);
+
+  useEffect(() => {
+    const profile = localStorage.getItem("profile");
+    if (profile) {
+      setProfile(JSON.parse(profile));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    setProfile(undefined);
+    localStorage.removeItem("profile");
+  };
+
   return (
     <div className="w-screen h-screen  bg-gradient-to-r from-pink-500 to-orange-500 text-white">
-      <div className="flex justify-start items-center h-24 w-full bg-white bg-opacity-20 absolute top-0 border-b border-gray-300">
+      <div className=" flex justify-between items-center h-24 w-full bg-white bg-opacity-20 absolute top-0 border-b border-gray-300">
         <img src="/logo.png" alt="Descriptive Alt Text" className="w-16 ml-8" />
+
+        {profile && (
+          <div className="flex mr-10">
+            <img
+              className="w-10 h-10 p-1 rounded-full   mr-2"
+              src={profile?.user_info?.picture ?? ""}
+              alt="Bordered avatar"
+            />
+            <button
+              onClick={handleLogout}
+              className="text-white border border-white px-4 rounded transition duration-300 ease-in-out hover:bg-white hover:text-black"
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
-      {/* <Login /> */}
-      <Scheduler />
+      {!profile ? <Login setProfile={setProfile} /> : <Scheduler />}
     </div>
   );
 }

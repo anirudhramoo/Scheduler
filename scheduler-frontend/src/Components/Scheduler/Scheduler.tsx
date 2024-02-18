@@ -3,7 +3,7 @@ import { SchedulerButtonSmall } from "./SchedulerButtonSmall";
 import { SchedulerButtonLarge } from "./SchedulerButtonLarge";
 import { fetchAndPlayAudio } from "../../Helpers/TextToSpeech";
 import SlowTextRenderer from "./SlowTextRenderer";
-import { MdAssistant } from "react-icons/md";
+import useMicrophone from "../../hooks/useMicrophone";
 
 type SchedulerState = "recording" | "analysing" | "done";
 
@@ -13,15 +13,19 @@ export type SchedulerProps = {
 export const Scheduler: FC<SchedulerProps> = ({ profile }) => {
   const [state, setState] = useState<SchedulerState>("done");
   const [data, setData] = useState("");
+  const { startRecording, stopAndSendRecording, status } = useMicrophone();
 
   const getData = async () => {
-    let response = await fetch("http://127.0.0.1:5000/protected", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ profile: profile }),
-    });
+    let response = await fetch(
+      process.env.REACT_APP_API_ENDPOINT + "/protected",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ profile: profile }),
+      }
+    );
     let { data } = await response.json();
 
     setData(data);
@@ -40,13 +44,19 @@ export const Scheduler: FC<SchedulerProps> = ({ profile }) => {
               <h1 className="text-2xl font-bold">Talk to Heather!</h1>
             )}
           </div>
-          <SchedulerButtonLarge onClick={() => setState("recording")} />
+          <SchedulerButtonLarge
+            onClick={() => {
+              setState("recording");
+              startRecording();
+            }}
+          />
         </>
       ) : state === "recording" ? (
         <>
           <div className="flex flex-col items-center justify-center mt-8 mb-24">
             <SchedulerButtonSmall
-              onClick={() => {
+              onClick={async () => {
+                await stopAndSendRecording();
                 getData();
                 setState("analysing");
               }}
@@ -60,6 +70,7 @@ export const Scheduler: FC<SchedulerProps> = ({ profile }) => {
             type="button"
             className="mt-4 bg-white bg-opacity-20  border  text-white font-bold py-2 px-8 rounded transition ease-in-out duration-300"
             onClick={() => {
+              setData("");
               setState("done");
             }}
           >

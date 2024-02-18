@@ -1,18 +1,20 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 
-const useMicrophone = () => {
+type UseMicrophoneProps = {
+  sendAudioToAPI: (input1: any, input2: any) => void;
+};
+const useMicrophone = ({ sendAudioToAPI }: UseMicrophoneProps) => {
   const [status, setStatus] = useState<
     "idle" | "recording" | "denied" | "sending" | "sent"
   >("idle");
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
   const startRecording = useCallback(() => {
-    console.log("recording starting");
     navigator.mediaDevices
       .getUserMedia({ audio: true })
       .then((stream) => {
-        console.log("the stream");
         const recorder = new MediaRecorder(stream);
         mediaRecorderRef.current = recorder;
 
@@ -29,7 +31,7 @@ const useMicrophone = () => {
       });
   }, []);
 
-  const stopAndSendRecording = useCallback(() => {
+  const stopAndSendRecording = useCallback((messages: any[]) => {
     const mediaRecorder = mediaRecorderRef.current;
     if (mediaRecorder) {
       mediaRecorder.onstop = async () => {
@@ -38,9 +40,8 @@ const useMicrophone = () => {
         });
         console.log(audioChunksRef.current);
         try {
-          const response = await sendAudioToAPI(audioBlob);
-          console.log(response);
-          setStatus("sent");
+          await sendAudioToAPI(audioBlob, messages);
+
           audioChunksRef.current = []; // Clear recorded chunks
         } catch (err) {
           console.error("Error sending audio to API:", err);
@@ -57,23 +58,5 @@ const useMicrophone = () => {
 
   return { startRecording, stopAndSendRecording, status };
 };
-
-async function sendAudioToAPI(audioBlob: Blob): Promise<any> {
-  try {
-    const response = await fetch(
-      process.env.REACT_APP_API_ENDPOINT + "/process-audio",
-      {
-        method: "POST",
-        body: audioBlob,
-      }
-    );
-    const result = await response.json();
-    console.log("Audio sent successfully", result);
-    return result;
-  } catch (error) {
-    console.error("Failed to send audio:", error);
-    throw error; // Re-throw to handle in the caller
-  }
-}
 
 export default useMicrophone;

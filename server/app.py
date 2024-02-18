@@ -2,7 +2,7 @@ from flask import Flask,jsonify,request
 from flask_cors import CORS
 from endpoints.test import handle_test
 from endpoints.google_login import login
-from endpoints.process_audio import handle_audio
+from endpoints.process_audio import handle_audio,handle_execute
 from dotenv import load_dotenv, find_dotenv
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -44,7 +44,7 @@ def protected():
     #     print(calendar['summary'])
     return response, 200
 
-app.add_url_rule('/process-audio', 'handle_audio', handle_audio, methods=['POST'])
+app.add_url_rule('/process-audio', 'handle_execute', handle_execute, methods=['POST'])
 
 if __name__ == '__main__':
     app.run(port=5000)

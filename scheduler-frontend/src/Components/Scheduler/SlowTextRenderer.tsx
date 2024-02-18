@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FC } from "react";
 
-const SlowTextRenderer = ({ text, wordDelay = 140 }: any) => {
+export type SlowTextRendererProps = {
+  text: string;
+  wordDelay?: number;
+};
+const SlowTextRenderer: FC<SlowTextRendererProps> = ({
+  text,
+  wordDelay = 140,
+}) => {
   const [currentText, setCurrentText] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const words = text.split(" "); // Split text into words
@@ -19,7 +26,7 @@ const SlowTextRenderer = ({ text, wordDelay = 140 }: any) => {
       // Cleanup timeout on component unmount or when currentWordIndex changes
       return () => clearTimeout(timerId);
     }
-  }, [currentText, currentWordIndex, wordDelay, words]); // Update dependencies
+  }, [currentText, currentWordIndex, words]); // Update dependencies
 
   return (
     <div className="max-w-xl mx-auto ">

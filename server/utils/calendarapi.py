@@ -19,7 +19,7 @@ class gcal_tool():
         self.access_token = response["access_token"]
        
 
-        self.primary = [i for i in self.calendars() if 'mich' in i][0]
+        self.primary = [i for i in self.calendars() if 'mich' in i or 'rishi' in i][0]
         cmeta = self.grequest(f"https://www.googleapis.com/calendar/v3/calendars/{self.primary}")
         print(cmeta["timeZone"])
 
